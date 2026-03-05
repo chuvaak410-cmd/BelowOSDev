@@ -71,7 +71,8 @@ Output is managed via the VGA text buffer at memory address `0xB8000`.
 qemu-system-i386 -drive file=hdd.img,format=raw
 
 ```
-
+or just type:
+```make run```
 
 
 ---
