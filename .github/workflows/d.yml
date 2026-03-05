@@ -1,0 +1,29 @@
+name: Build BelowOS
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y nasm qemu-utils gcc-multilib
+
+    - uses: dlang-community/setup-dlang@v1
+      with:
+        compiler: ldc-latest
+
+    - name: Build Kernel
+      run: |
+        # Здесь мы запускаем твой Makefile
+        # Он сам должен лезть в src/boot и src/kernel
+        make all
