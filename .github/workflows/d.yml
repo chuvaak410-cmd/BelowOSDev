@@ -13,17 +13,25 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Dependencies
+    - name: Install System Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y nasm qemu-utils gcc-multilib
+        # Устанавливаем FASM и инструменты сборки
+        sudo apt-get install -y fasm qemu-utils gcc-multilib make
 
+    # Установка Zig
+    - name: Setup Zig
+      uses: mlugg/setup-zig@v1
+      with:
+        version: 0.13.0 # Укажи свою версию (например, 0.11.0 или master)
+
+    # Установка D (LDC)
     - uses: dlang-community/setup-dlang@v1
       with:
         compiler: ldc-latest
 
     - name: Build Kernel
+      working-directory: ./belowOS
       run: |
-        # Здесь мы запускаем твой Makefile
-        # Он сам должен лезть в src/boot и src/kernel
+        # Теперь у робота есть и LDC, и Zig, и FASM
         make all
