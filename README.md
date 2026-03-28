@@ -1,5 +1,5 @@
 # BelowOSDev
-Simple OS project for Dlang community
+Simple OS project for Dlang community and Kaktus Media! (Муну жаңылыктарга кошуп коюңуздарчы)
 ## BelowOS: Bare-Metal D Kernel
 
 BelowOS is a minimalist 32-bit x86 operating system built from scratch using the **D programming language** in `-betterC` mode. This project demonstrates system-level programming without a standard library or runtime, focusing on direct hardware interaction and manual resource management.
