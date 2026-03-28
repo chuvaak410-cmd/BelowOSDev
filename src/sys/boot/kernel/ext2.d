@@ -1,9 +1,8 @@
 module sys.boot.kernel.ext2;
-import header; // Для доступа к OSprint и другим функциям ядра
+import header;
 
 extern (C)
 {
-    // Внутренние функции Zig, которые можно вызывать из D
     bool ext2_init(uint lba);
     uint ext2_read_file(uint inode, ubyte* dest_buf, uint max_len);
     uint ext2_get_file_size(uint inode);
@@ -11,11 +10,8 @@ extern (C)
     uint ext2_find_file(uint parent_inode, const char* name, uint name_len);
     void ext2_list_dir(uint parent_inode);
 }
-
-// Колбэк, который Zig вызывает для каждого найденного файла/папки при ext2_list_dir
 extern (C) void ext2_dir_callback(const char* name, uint name_len, uint inode, bool is_dir)
 {
-    // Пропускаем ссылки на текущую и родительскую директорию (. и ..) если нужно
     if (name[0] == '.' && (name_len == 1 || (name_len == 2 && name[1] == '.')))
     {
         return;
@@ -23,12 +19,10 @@ extern (C) void ext2_dir_callback(const char* name, uint name_len, uint inode, b
 
     OSprint(is_dir ? "[DIR] " : "[FIL] ", 0x0E);
 
-    // В Zig строки не закачиваются нулем, поэтому берем срез нужной длины
     OSprint(cast(string) name[0 .. name_len]);
     OSprint("\n");
 }
 
-// Пример использования (вы можете интегрировать этот код в свой шелл в header.d):
 /*
 void test_ext2() {
     // Инициализируем EXT2 на разделе (например, LBA 2048)

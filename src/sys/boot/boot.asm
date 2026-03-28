@@ -14,6 +14,7 @@ section '.text' executable align 4
     use32
     public start
     extrn OSmain
+    extrn dbg
 macro DEBUG_CHAR char {
     mov al, char
     out 0xe9, al
@@ -35,6 +36,13 @@ start:
     DEBUG_CHAR 'o'
     DEBUG_CHAR '!'
     call OSmain
+    mov edx, 1
+    mov ecx, dbg
+    cmp edx, ecx
+    jne .hlt
+    xor edx, edx
+    xor ecx, ecx
+    
 .hlt:
     hlt
     jmp .hlt

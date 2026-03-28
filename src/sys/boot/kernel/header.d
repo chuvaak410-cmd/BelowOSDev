@@ -4,7 +4,7 @@ import ldc.intrinsics;
 import core.stdc.stdint;
 
 extern (C):
-// Цвета текста
+// Текст түстөр
 enum : ubyte
 {
     BLACK = 0x00,
@@ -106,7 +106,7 @@ void OSprint(string msg, ubyte col = 0x0F)
             scroll();
     }
 }
-// ОБРАБОТКА КЛАВИАТУРЫ 
+// клавиатураны иштетүү 
 char get_char()
 {
     static const char[128] map = [
@@ -272,7 +272,7 @@ bool ata_wait()
 
 bool read_sector(uint lba, ushort* buffer)
 {
-    // 1. Выбираем диск (Drive Select) и ждем готовности
+    // Выбираем диск (Drive Select) и ждем готовности
     // 0xA0 - это Master Drive на Primary канале
     outb(0x1F6, cast(ubyte)(0xE0 | ((lba >> 24) & 0x0F)));
 
@@ -283,16 +283,16 @@ bool read_sector(uint lba, ushort* buffer)
     if (!ata_wait())
         return false;
 
-    // 2. Устанавливаем параметры чтения
+    // Устанавливаем параметры чтения
     outb(0x1F2, 1); // Количество секторов (1)
     outb(0x1F3, cast(ubyte) lba); // LBA лоу-байт
     outb(0x1F4, cast(ubyte)(lba >> 8)); // LBA мид-байт
     outb(0x1F5, cast(ubyte)(lba >> 16)); // LBA хай-байт
 
-    // 3. Посылаем команду READ SECTORS (0x20)
+    // Посылаем команду READ SECTORS (0x20)
     outb(0x1F7, 0x20);
 
-    // 4. Ждем, пока диск подготовит буфер данных (бит DRQ)
+    // Ждем, пока диск подготовит буфер данных (бит DRQ)
     int timeout = 1000000;
     while (timeout > 0)
     {
@@ -307,7 +307,7 @@ bool read_sector(uint lba, ushort* buffer)
     if (timeout <= 0)
         return false;
 
-    // 5. Читаем данные из порта (256 слов = 512 байт)
+    // Читаем данные из порта (256 слов = 512 байт)
     for (int i = 0; i < 256; i++)
     {
         buffer[i] = inw(0x1F0);
@@ -368,7 +368,7 @@ int findInDir(char* name, int parent)
     {
         if (fs[i].exists && fs[i].parentIdx == parent)
         {
-            // Сравнение имен (учитываем, что name может быть char[16])
+            // Сравнение имен name может быть char[16]
             bool match = true;
             for (int j = 0; j < 16; j++)
             {
@@ -442,6 +442,8 @@ void BSOD(string err)
     outb(0x64, 0xFE);
 }
 
+__gshared int dbg = 1;
+
 void OSmain()
 {
     // 1. Начальная очистка экрана
@@ -466,7 +468,7 @@ void OSmain()
     OSprint(" # | |_) | ___ | |  ___ __      | |  | | (___                                 #\n", 0x0A);
     OSprint(" # |  _ < / _ \\| | / _ \\\\ \\ /\\ / / |  | |\\___ \\                                #\n", 0x0A);
     OSprint(" # | |_) |  __/| || (_) |\\ V  V /| |__| |____) |                              #\n", 0x0A);
-    OSprint(" # |____/ \\___||_| \\___/  \\_/\\_/  \\____/|_____/                                #\n", 0x0A);
+    OSprint(" # |____/ \\___||_| \\___/  \\_/\\_/  \\____/|_____/Kyrgyz Edition                              #\n", 0x0A);
     OSprint(" #                                                                            #\n", 0x0A);
     OSprint(" ############################  KERNEL v1.0.1 OK  ##############################\n\n", 0x0A);
     sleep(100);
@@ -476,8 +478,7 @@ void OSmain()
     OSprint("[ INFO ] MEMORY: 2048KB Extended Memory Test... OK\n", 0x07);
     OSprint("[ INFO ] IDE: Initializing ATA Primary Controller...\n", 0x07);
     sleep(60);
-
-    // 5. Прогресс бар загрузки
+    //загрузка
     OSprint("Loading Kernel Modules:\n", 0x0F);
     for (int i = 0; i <= 10; i++)
     {
@@ -496,7 +497,7 @@ void OSmain()
     }
     OSprint("\n");
 
-    // 6. Сброс IDE контроллера
+    //Сброс IDE контроллера
     OSprint("[ IDE ] Resetting Controller... ", 0x07);
     outb(0x1F6, 0xA0);
     sleep(10);
@@ -506,7 +507,7 @@ void OSmain()
     sleep(20);
     OSprint("DONE\n", 0x0A);
 
-    // 7. Монтирование файловой системы
+    //Монтирование файловой системы
     OSprint("[ DISK ] Mounting Root FileSystem... ", 0x07);
 
     bool ok = sync_from_disk();
@@ -546,7 +547,7 @@ void OSmain()
         vram[i] = 0x0720;
     curX = 0;
     curY = 0;
-    OSprint("BelowOS Terminal [Version 1.0.1]\n", 0x0A);
+    OSprint("BelowOS Kyrgyz_Edition Terminal [Version 1.0.1]\n", 0x0A);
     OSprint("Type 'help' for a list of commands.\n\n", 0x07);
 
     char[64] buf;
@@ -570,7 +571,7 @@ void OSmain()
 
             if (*arg == '\0')
             {
-                OSprint("Commands: ls, cd, mkdir, nfl, cat, edit, rm, cls, add, sub, mul, div, reboot, nuke, BSOD\n", 0x07);
+                OSprint("Commands: ls, cd, mkdir, nfl, cat, edit, rm, cls, add, sub, mul, div, reboot, nuke, BSOD, kyrgyz\n", 0x07);
                 OSprint("Detailed help: help --[cmd] (e.g. help --ls)\n", 0x08);
             }
             else if (strCmp(arg, "--ls"))
@@ -638,6 +639,70 @@ void OSmain()
                 OSprint("Unknown help flag. Usage: help --[command]\n", 0x0C);
             }
         }
+        else if (isCmd(buf.ptr, "kyrgyz"))
+        {
+            OSprint("Kyrgyz Edition\n", 0x0A);
+            sleep(30);
+            OSprint("Kyrgyz Gymn!\n", 0x0A);
+            OSprint("Ak mongguluu aska zoolor, talaalar!\n", 0x0A);
+            OSprint("Elibizdin jany menen barabar!\n", 0x0A);
+            OSprint("Sansyz kylym Ala-Toosun mekendep!\n", 0x0A);
+            OSprint("Saktap keldi bizdin ata-babalar!\n", 0x0A);
+            OSprint("\n", 0x0A);
+            sleep(60);
+            OSprint("Algalai ber, kyrgyz el!\n", 0x0A);
+            OSprint("Azattyktyn jolunda!\n", 0x0A);
+            OSprint("Orkundoi ber, oso ber!\n", 0x0A);
+            OSprint("Oz tagdyryn kolunda!\n", 0x0A);
+            OSprint("\n", 0x0A);
+            sleep(60);
+            OSprint("Bairtadan butkon munoz elime!\n", 0x0A);
+            OSprint("Dostoruna dayar dilin beruugo!\n", 0x0A);
+            OSprint("Bul yntymak el birdigin shiretip!\n", 0x0A);
+            OSprint("Beikuttykty beret kyrgyz jerine!\n", 0x0A);
+            OSprint("\n", 0x0A);
+            sleep(60);
+            OSprint("Algalai ber, kyrgyz el!\n", 0x0A);
+            OSprint("Azattyktyn jolunda!\n", 0x0A);
+            OSprint("Orkundoi ber, oso ber!\n", 0x0A);
+            OSprint("Oz tagdyryn kolunda!\n", 0x0A);
+            OSprint("\n", 0x0A);
+            sleep(60);
+            OSprint("Atkarulyp eldin umut, tilegi!\n", 0x0A);
+            OSprint("Zhelbiredi erkindiktin zhelegi!\n", 0x0A);
+            OSprint("Bizge jetken ata saltyn, murasyn!\n", 0x0A);
+            OSprint("Yiyk saktap urpaktaрга bereli!\n", 0x0A);
+            OSprint("\n", 0x0A);
+            sleep(60);
+            OSprint("Algalai ber, kyrgyz el!\n", 0x0A);
+            OSprint("Azattyktyn jolunda!\n", 0x0A);
+            OSprint("Orkundoi ber, oso ber!\n", 0x0A);
+            OSprint("Oz tagdyryn kolunda!\n", 0x0A);
+        }
+        /*1. Ак мөңгүлүү аска зоолор, талаалар
+Элибиздин жаны менен барабар.
+Сансыз кылым Ала-Тоосун мекендеп,
+Сактап келди биздин ата-бабалар.
+
+Припев:
+Алгалай бер, кыргыз эл,
+Азаттыктын жолунда.
+Өркүндөй бер, өсө бер,
+Өз тагдырың колуңда.
+
+2. Байыртадан бүткөн мүнөз элиме,
+Досторуна даяр дилин берүүгө.
+Бул ынтымак эл бирдигин ширетип,
+Бейкуттукту берет кыргыз жерине.
+
+Припев
+
+3. Аткарылып элдин үмүт, тилеги,
+Желбиреди эркиндиктин желеги.
+Бизге жеткен ата салтын, мурасын
+Ыйык сактап урпактарга берели.
+
+Припев*/
         else if (isCmd(buf.ptr, "ls"))
         {
             bool found = false;
