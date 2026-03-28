@@ -82,3 +82,4 @@ or just type:
 * **Freestanding Environment**: No dependency on `libc` or `libphobos`.
 * **Memory Mapping**: Uses custom aliases for system-specific types to ensure portability across different x86 compilers.
 * **Hardware Reset**: Implements a soft-reboot via the PS/2 controller (Port `0x64`).
+# Алга Кыргызстан!
